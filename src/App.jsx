@@ -46,7 +46,7 @@ function getOverallStatus(greenCount, redCount) {
 
   return {
     title: 'DO NOT ENTER',
-    subtitle: 'You only have 0 to 5 green conditions.',
+    subtitle: 'You have < 5 green conditions.',
     className: 'status-card status-neutral',
   };
 }
