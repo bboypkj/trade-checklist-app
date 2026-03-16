@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 const defaultTiles = [
   { id: 1, label: '2B + Div', group: 'entry', state: 'neutral', image: '/2b.png' },
   { id: 2, label: 'AOI Sweep against and 1min close on my side (SPX AND NQ)', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
-  { id: 3, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral' },
+  { id: 3, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral', image: '/2ndpoke.png },
   { id: 4, label: 'Imbalance on Left', group: 'entry', state: 'neutral' },
   { id: 5, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral' },
   { id: 6, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral' },
