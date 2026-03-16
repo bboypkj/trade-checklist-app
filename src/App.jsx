@@ -6,7 +6,7 @@ const defaultTiles = [
   { id: 3, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral', image: '/2ndpoke.png' },
   { id: 4, label: 'Imbalance on Left', group: 'entry', state: 'neutral', image: '/imbalance.png' },
   { id: 5, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
-  { id: 6, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral' },
+  { id: 6, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral', image: '/analogous.png' },
   { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'entry', state: 'neutral' },
   { id: 8, label: 'Stop allows room to breathe and 1-2pts beyond Invalidation', group: 'entry', state: 'neutral' },
   { id: 9, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral' },
