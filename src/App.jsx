@@ -1,17 +1,17 @@
 import React, { useMemo, useState } from 'react';
 
 const defaultTiles = [
-  { id: 1, label: '2B + Div', group: 'entry', state: 'neutral', image: '/2b.png' },
-  { id: 2, label: 'AOI Sweep against and 1min close on my side (SPX AND NQ)', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
-  { id: 3, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral', image: '/2ndpoke.png' },
-  { id: 4, label: 'Imbalance on Left', group: 'entry', state: 'neutral', image: '/imbalance.png' },
-  { id: 5, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
-  { id: 6, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral', image: '/analogous.png' },
+  { id: 1, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
+  { id: 2, label: 'Stop allows room to breathe and 1-2pts beyond Invalidation', group: 'entry', state: 'neutral', image: '/stoproom.png' },
+  { id: 3, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral', image: '/analogous.png' },
+  { id: 4, label: 'AOI Sweep against and 1min close on my side (SPX AND NQ)', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
+  { id: 5, label: 'Imbalance on Left', group: 'entry', state: 'neutral', image: '/imbalance.png' },
+  { id: 6, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral', image: '/2ndpoke.png' },
   { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'entry', state: 'neutral', image: '/tp1room.png' },
-  { id: 8, label: 'Stop allows room to breathe and 1-2pts beyond Invalidation', group: 'entry', state: 'neutral', image: '/stoproom.png' },
-  { id: 9, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral', image: '/NGStructure.png' },
-  { id: 10, label: 'Choppy/Overlapping PA', group: 'nogo', state: 'neutral', image: '/NGchop.png' },
-  { id: 11, label: 'SPX and NQ Not on same side of OPEN', group: 'nogo', state: 'neutral', image: '/NGsameside.png' },
+  { id: 8, label: '2B + Div', group: 'entry', state: 'neutral', image: '/2b.png' },
+  { id: 9, label: 'SPX and NQ Not on same side of OPEN', group: 'nogo', state: 'neutral', image: '/NGsameside.png' },
+  { id: 10, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral', image: '/NGStructure.png' },
+  { id: 11, label: 'Choppy/Overlapping PA', group: 'nogo', state: 'neutral', image: '/NGchop.png' },
   { id: 12, label: 'Fading Direction of a 2B + Div at Major AOI', group: 'nogo', state: 'neutral', image: '/NGfade.png' },
 ];
 
