@@ -9,7 +9,7 @@ const defaultTiles = [
   { id: 6, label: 'SPX/NQ at Analogous S or R', group: 'entry', state: 'neutral' },
   { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'entry', state: 'neutral' },
   { id: 8, label: 'Stop allows room to breathe and 1-2pts beyond Invalidation', group: 'entry', state: 'neutral' },
-  { id: 9, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long)', group: 'nogo', state: 'neutral' },
+  { id: 9, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral' },
   { id: 10, label: 'Choppy/Overlapping PA', group: 'nogo', state: 'neutral' },
   { id: 11, label: 'SPX and NQ Not on same side of OPEN', group: 'nogo', state: 'neutral' },
   { id: 12, label: 'Fading a 2B + Div at Major AOI', group: 'nogo', state: 'neutral' },
