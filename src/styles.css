@@ -161,6 +161,9 @@ button {
   cursor: pointer;
   transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .tile-card:hover {
@@ -192,6 +195,42 @@ button {
   background: #c43b3b;
   border-color: #ff9f9f;
   color: #ffffff;
+}
+
+.tile-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.tile-content-with-image {
+  max-width: 60%;
+}
+
+.tile-image-wrap {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 40%;
+  height: 78%;
+  opacity: 0.22;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 16px;
+  z-index: 1;
+}
+
+.tile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 72%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 72%, rgba(0, 0, 0, 0) 100%);
+  filter: saturate(0.9) contrast(1.02);
 }
 
 .tile-label {
@@ -258,6 +297,17 @@ button {
     border-radius: 18px;
   }
 
+  .tile-image-wrap {
+    right: 6px;
+    bottom: 6px;
+    width: 42%;
+    height: 76%;
+  }
+
+  .tile-content-with-image {
+    max-width: 58%;
+  }
+
   .tile-label {
     font-size: 0.98rem;
     line-height: 1.1;
@@ -312,6 +362,15 @@ button {
   .tile-card {
     min-height: 132px;
     padding: 14px;
+  }
+
+  .tile-content-with-image {
+    max-width: 56%;
+  }
+
+  .tile-image-wrap {
+    width: 42%;
+    height: 74%;
   }
 
   .tile-label {

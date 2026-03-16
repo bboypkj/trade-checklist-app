@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 const defaultTiles = [
-  { id: 1, label: '2B + Div', group: 'entry', state: 'neutral' },
+  { id: 1, label: '2B + Div', group: 'entry', state: 'neutral', image: '/2b.png' },
   { id: 2, label: 'AOI Sweep against and 1min close on my side (SPX AND NQ)', group: 'entry', state: 'neutral' },
   { id: 3, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral' },
   { id: 4, label: 'Imbalance on Left', group: 'entry', state: 'neutral' },
@@ -39,14 +39,14 @@ function getOverallStatus(greenCount, redCount) {
   if (greenCount >= 6) {
     return {
       title: 'A',
-      subtitle: 'You have 6 or more conditions confirmed.',
+      subtitle: 'You have 6 or 7 conditions confirmed.',
       className: 'status-card status-green',
     };
   }
 
   return {
     title: 'DO NOT ENTER',
-    subtitle: 'You have < 5 green conditions.',
+    subtitle: 'You have 0 to 5 green conditions.',
     className: 'status-card status-neutral',
   };
 }
@@ -80,7 +80,7 @@ export default function App() {
         <header className="topbar">
           <div>
             <h1>Trade Conviction Board</h1>
-            <p>Top 2 rows: grey to green. Bottom row: grey to red.</p>
+            <p>Top 2 rows: grey to green. Bottom row: grey-tinted red to red.</p>
           </div>
           <div className="topbar-right">
             <div className="pill-card">
@@ -109,6 +109,7 @@ export default function App() {
             const activeClass = isEntry ? 'entry-active' : 'nogo-active';
             const neutralClass = isEntry ? 'tile-neutral' : 'nogo-neutral';
             const cardClass = tile.state === 'active' ? activeClass : neutralClass;
+            const hasImage = Boolean(tile.image);
 
             return (
               <button
@@ -116,18 +117,26 @@ export default function App() {
                 className={`tile-card ${cardClass}`}
                 onClick={() => toggleTile(tile.id)}
               >
-                <div>
-                  <div className="tile-tag">{isEntry ? 'Entry Condition' : 'No Go'}</div>
-                  <div className="tile-label">{tile.label}</div>
-                </div>
-                <div className="tile-state">
-                  {isEntry
-                    ? tile.state === 'active'
-                      ? 'Confirmed'
-                      : 'Unconfirmed'
-                    : tile.state === 'active'
-                      ? 'Active blocker'
-                      : 'Not present'}
+                {hasImage && (
+                  <div className="tile-image-wrap" aria-hidden="true">
+                    <img src={tile.image} alt="" className="tile-image" />
+                  </div>
+                )}
+
+                <div className={`tile-content ${hasImage ? 'tile-content-with-image' : ''}`}>
+                  <div>
+                    <div className="tile-tag">{isEntry ? 'Entry Condition' : 'No Go'}</div>
+                    <div className="tile-label">{tile.label}</div>
+                  </div>
+                  <div className="tile-state">
+                    {isEntry
+                      ? tile.state === 'active'
+                        ? 'Confirmed'
+                        : 'Unconfirmed'
+                      : tile.state === 'active'
+                        ? 'Active blocker'
+                        : 'Not present'}
+                  </div>
                 </div>
               </button>
             );
