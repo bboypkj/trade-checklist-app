@@ -39,7 +39,7 @@ function getOverallStatus(greenCount, redCount) {
   if (greenCount >= 6) {
     return {
       title: 'A',
-      subtitle: '6 of 8 conditions are confirmed.',
+      subtitle: 'You have more than 6 conditions confirmed.',
       className: 'status-card status-green',
     };
   }
