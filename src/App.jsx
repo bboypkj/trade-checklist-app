@@ -107,7 +107,8 @@ export default function App() {
           {tiles.map((tile) => {
             const isEntry = tile.group === 'entry';
             const activeClass = isEntry ? 'entry-active' : 'nogo-active';
-            const cardClass = tile.state === 'active' ? activeClass : 'tile-neutral';
+            const neutralClass = isEntry ? 'tile-neutral' : 'nogo-neutral';
+            const cardClass = tile.state === 'active' ? activeClass : neutralClass;
 
             return (
               <button

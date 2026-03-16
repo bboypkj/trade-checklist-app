@@ -176,6 +176,12 @@ button {
   color: #ffffff;
 }
 
+.nogo-neutral {
+  background: #62575b;
+  border-color: #8b6c74;
+  color: #fff7f7;
+}
+
 .entry-active {
   background: #16924b;
   border-color: #6fe6a2;
