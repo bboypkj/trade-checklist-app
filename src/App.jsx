@@ -46,7 +46,7 @@ function getOverallStatus(greenCount, redCount, regime) {
   if (greenCount === 4) {
     return {
       title: 'A+',
-      subtitle: `${regime} confirmed: all 4 entry conditions are on.`,
+      subtitle: `Regime: ${regime}: TP Plan: ${tpPlan}: all 4 entry conditions are on.`,
       className: 'status-card status-emerald',
     };
   }
@@ -54,7 +54,7 @@ function getOverallStatus(greenCount, redCount, regime) {
   if (greenCount === 3) {
     return {
       title: 'A',
-      subtitle: `${regime} confirmed: 3/4 entry conditions are on.`,
+      subtitle: `Regime: ${regime}: TP Plan: ${tpPlan}: 3/4 entry conditions are on.`,
       className: 'status-card status-emerald',
     };
   }
