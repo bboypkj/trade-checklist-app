@@ -79,7 +79,38 @@ button {
 }
 
 .pill-card strong {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  line-height: 1.1;
+}
+
+.pill-card-wide {
+  min-width: 124px;
+}
+
+.pill-button {
+  color: #f5f7fb;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pill-button:hover,
+.reset-button:hover {
+  background: #252a38;
+}
+
+.regime-trend {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(5, 87, 52, 0.32);
+}
+
+.regime-reversal {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(30, 64, 175, 0.28);
+}
+
+.regime-chop {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(146, 64, 14, 0.3);
 }
 
 .pill-label,
@@ -95,10 +126,6 @@ button {
   color: #f5f7fb;
   cursor: pointer;
   min-width: 92px;
-}
-
-.reset-button:hover {
-  background: #252a38;
 }
 
 .status-card {
@@ -123,12 +150,6 @@ button {
 .status-neutral {
   background: #1b1f2b;
   color: #f5f7fb;
-}
-
-.status-green {
-  background: rgba(5, 87, 52, 0.45);
-  border-color: rgba(34, 197, 94, 0.65);
-  color: #d8ffe5;
 }
 
 .status-emerald {
@@ -175,7 +196,8 @@ button {
 }
 
 .tile-neutral {
-  background: #555d70;
+  background: #16924b;
+  border-color: #6fe6a2;
   color: #ffffff;
 }
 
@@ -186,8 +208,8 @@ button {
 }
 
 .entry-active {
-  background: #16924b;
-  border-color: #6fe6a2;
+  background: #25b95e;
+  border-color: #abf5c8;
   color: #ffffff;
 }
 
@@ -271,7 +293,7 @@ button {
   }
 
   .pill-card strong {
-    font-size: 1.1rem;
+    font-size: 0.98rem;
   }
 
   .status-card {

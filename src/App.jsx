@@ -1,14 +1,16 @@
 import React, { useMemo, useState } from 'react';
 
+const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP'];
+
 const defaultTiles = [
   { id: 1, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
   { id: 2, label: 'Stop gives room', group: 'entry', state: 'neutral', image: '/stoproom.png' },
   { id: 3, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral', image: '/analogous.png' },
   { id: 4, label: '1min close on my side from AOI Sweep (SPX AND NQ)', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
-  { id: 5, label: 'Imbalance on Left', group: 'entry', state: 'neutral', image: '/imbalance.png' },
-  { id: 6, label: 'Subsequent Candle Goes Against me then fails', group: 'entry', state: 'neutral', image: '/2ndpoke.png' },
-  { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'entry', state: 'neutral', image: '/tp1room.png' },
-  { id: 8, label: '2B + Div', group: 'entry', state: 'neutral', image: '/2b.png' },
+  { id: 5, label: 'Imbalance on Left', group: 'nogo', state: 'neutral', image: '/imbalance.png' },
+  { id: 6, label: 'Subsequent Candle Goes Against me then fails', group: 'nogo', state: 'neutral', image: '/2ndpoke.png' },
+  { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'nogo', state: 'neutral', image: '/tp1room.png' },
+  { id: 8, label: '2B + Div', group: 'nogo', state: 'neutral', image: '/2b.png' },
   { id: 9, label: 'SPX and NQ Not on same side of OPEN', group: 'nogo', state: 'neutral', image: '/NGsameside.png' },
   { id: 10, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral', image: '/NGStructure.png' },
   { id: 11, label: 'Choppy/Overlapping PA', group: 'nogo', state: 'neutral', image: '/NGchop.png' },
@@ -19,40 +21,46 @@ function getNextState(tile) {
   return tile.state === 'neutral' ? 'active' : 'neutral';
 }
 
-function getOverallStatus(greenCount, redCount) {
+function getOverallStatus(greenCount, redCount, regime) {
   if (redCount > 0) {
     return {
       title: 'NO GO',
-      subtitle: 'At least one hard blocker is active.',
+      subtitle: 'At least one no-go condition is active.',
       className: 'status-card status-red',
     };
   }
 
-  if (greenCount === 8) {
+  if (greenCount === 4) {
     return {
       title: 'A+',
-      subtitle: 'All 8 entry conditions are confirmed.',
+      subtitle: `${regime} confirmed: all 4 entry conditions are on.`,
       className: 'status-card status-emerald',
-    };
-  }
-
-  if (greenCount >= 6) {
-    return {
-      title: 'A',
-      subtitle: 'You have 6 or more conditions confirmed.',
-      className: 'status-card status-green',
     };
   }
 
   return {
     title: 'DO NOT ENTER',
-    subtitle: 'You have 0 to 5 green conditions.',
+    subtitle: `You need 4/4 green and 0 active no-go conditions.`,
     className: 'status-card status-neutral',
   };
 }
 
+function getTpPlan(regime) {
+  return regime === '2-Sided CHOP' ? 'Conservative' : 'Ride the Trend';
+}
+
+function getRegimeCardClass(regime) {
+  if (regime === 'Trend Day') return 'pill-card pill-button regime-trend';
+  if (regime === 'Reversal Day') return 'pill-card pill-button regime-reversal';
+  return 'pill-card pill-button regime-chop';
+}
+
 export default function App() {
   const [tiles, setTiles] = useState(defaultTiles);
+  const [regimeIndex, setRegimeIndex] = useState(0);
+
+  const regime = regimeOptions[regimeIndex];
+  const tpPlan = getTpPlan(regime);
 
   const greenCount = useMemo(
     () => tiles.filter((tile) => tile.group === 'entry' && tile.state === 'active').length,
@@ -64,7 +72,10 @@ export default function App() {
     [tiles]
   );
 
-  const status = useMemo(() => getOverallStatus(greenCount, redCount), [greenCount, redCount]);
+  const status = useMemo(
+    () => getOverallStatus(greenCount, redCount, regime),
+    [greenCount, redCount, regime]
+  );
 
   const toggleTile = (id) => {
     setTiles((prev) =>
@@ -72,7 +83,14 @@ export default function App() {
     );
   };
 
-  const resetTiles = () => setTiles(defaultTiles);
+  const cycleRegime = () => {
+    setRegimeIndex((prev) => (prev + 1) % regimeOptions.length);
+  };
+
+  const resetTiles = () => {
+    setTiles(defaultTiles);
+    setRegimeIndex(0);
+  };
 
   return (
     <div className="app-shell">
@@ -80,16 +98,20 @@ export default function App() {
         <header className="topbar">
           <div>
             <h1>Trade Conviction Board</h1>
-            <p>Top 2 rows: grey to green. Bottom row: grey-tinted red to red.</p>
+            <p>Top row is green. Bottom 2 rows are no-go. Any red means no trade.</p>
           </div>
           <div className="topbar-right">
-            <div className="pill-card">
+            <button type="button" className={getRegimeCardClass(regime)} onClick={cycleRegime}>
+              <span className="pill-label">Regime</span>
+              <strong>{regime}</strong>
+            </button>
+            <div className="pill-card pill-card-wide">
               <span className="pill-label">Green Conditions</span>
-              <strong>{greenCount}/8</strong>
+              <strong>{greenCount}/4</strong>
             </div>
-            <div className="pill-card">
-              <span className="pill-label">Red Flags</span>
-              <strong>{redCount}/4</strong>
+            <div className="pill-card pill-card-wide">
+              <span className="pill-label">TP Plan</span>
+              <strong>{tpPlan}</strong>
             </div>
             <button className="reset-button" onClick={resetTiles}>
               Reset
@@ -132,7 +154,7 @@ export default function App() {
                     {isEntry
                       ? tile.state === 'active'
                         ? 'Confirmed'
-                        : 'Unconfirmed'
+                        : 'Required'
                       : tile.state === 'active'
                         ? 'Active blocker'
                         : 'Not present'}
