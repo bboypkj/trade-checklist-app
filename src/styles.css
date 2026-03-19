@@ -113,6 +113,18 @@ button {
   background: rgba(146, 64, 14, 0.3);
 }
 
+.regime-trend,
+.regime-reversal,
+.regime-chop {
+  min-width: 240px;
+}
+
+.regime-trend strong,
+.regime-reversal strong,
+.regime-chop strong {
+  white-space: nowrap;
+}
+
 .pill-label,
 .status-label,
 .tile-tag {
