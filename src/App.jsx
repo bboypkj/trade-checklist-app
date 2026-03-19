@@ -1,3 +1,6 @@
+Yep — here’s the full `App.jsx` with that change already made:
+
+```jsx
 import React, { useMemo, useState } from 'react';
 
 function TileImage({ src }) {
@@ -19,7 +22,7 @@ const defaultTiles = [
   { id: 2, label: 'Volume Confirming my trade', group: 'entry', state: 'neutral', image: '/stoproom.png' },
   { id: 3, label: 'Pretty Trend', group: 'entry', state: 'neutral', image: '/analogous.png' },
   { id: 4, label: 'Price Reclaimed AOI Twice', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
-  
+
   { id: 5, label: 'Increasing Volume on 1 or 3 min against my trade', group: 'nogo', state: 'neutral', image: '/imbalance.png' },
   { id: 6, label: '1min close on wrong side (Either NQ or SPX)', group: 'nogo', state: 'neutral', image: '/2ndpoke.png' },
   { id: 7, label: 'TP1 < 1.5 R/R of room', group: 'nogo', state: 'neutral', image: '/tp1room.png' },
@@ -34,7 +37,7 @@ function getNextState(tile) {
   return tile.state === 'neutral' ? 'active' : 'neutral';
 }
 
-function getOverallStatus(greenCount, redCount, regime) {
+function getOverallStatus(greenCount, redCount, regime, tpPlan) {
   if (redCount > 0) {
     return {
       title: 'NO GO',
@@ -46,7 +49,7 @@ function getOverallStatus(greenCount, redCount, regime) {
   if (greenCount === 4) {
     return {
       title: 'A+',
-      subtitle: `${regime} confirmed: all 4 entry conditions are on.`,
+      subtitle: `Regime: ${regime} - TP Plan: ${tpPlan} - 4/4 Entry Conditions are on.`,
       className: 'status-card status-emerald',
     };
   }
@@ -54,7 +57,7 @@ function getOverallStatus(greenCount, redCount, regime) {
   if (greenCount === 3) {
     return {
       title: 'A',
-      subtitle: `${regime} confirmed: 3/4 entry conditions are on.`,
+      subtitle: `Regime: ${regime} - TP Plan: ${tpPlan} - 3/4 Entry Conditions are on.`,
       className: 'status-card status-emerald',
     };
   }
@@ -94,8 +97,8 @@ export default function App() {
   );
 
   const status = useMemo(
-    () => getOverallStatus(greenCount, redCount, regime),
-    [greenCount, redCount, regime]
+    () => getOverallStatus(greenCount, redCount, regime, tpPlan),
+    [greenCount, redCount, regime, tpPlan]
   );
 
   const toggleTile = (id) => {
@@ -185,3 +188,6 @@ export default function App() {
     </div>
   );
 }
+```
+
+Paste that over your current `src/App.jsx` and commit it.
