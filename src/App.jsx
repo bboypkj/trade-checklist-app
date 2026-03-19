@@ -15,14 +15,15 @@ function TileImage({ src }) {
 const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP'];
 
 const defaultTiles = [
-  { id: 1, label: 'Previous Market Structure Agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
-  { id: 2, label: 'Stop gives room', group: 'entry', state: 'neutral', image: '/stoproom.png' },
-  { id: 3, label: 'SPX/NQ BOTH at Analogous S or R', group: 'entry', state: 'neutral', image: '/analogous.png' },
-  { id: 4, label: '1min close on my side from AOI Sweep (SPX AND NQ)', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
-  { id: 5, label: 'Imbalance on Left', group: 'nogo', state: 'neutral', image: '/imbalance.png' },
-  { id: 6, label: 'Subsequent Candle Goes Against me then fails', group: 'nogo', state: 'neutral', image: '/2ndpoke.png' },
-  { id: 7, label: 'TP1 > 1.5 R/R of room', group: 'nogo', state: 'neutral', image: '/tp1room.png' },
-  { id: 8, label: '2B + Div', group: 'nogo', state: 'neutral', image: '/2b.png' },
+  { id: 1, label: 'Previous Market Structure on 1min, 3min, 15min agrees', group: 'entry', state: 'neutral', image: '/MSagree.png' },
+  { id: 2, label: 'Volume Confirming my trade', group: 'entry', state: 'neutral', image: '/stoproom.png' },
+  { id: 3, label: 'Pretty Trend', group: 'entry', state: 'neutral', image: '/analogous.png' },
+  { id: 4, label: 'Price Reclaimed AOI Twice', group: 'entry', state: 'neutral', image: '/samesideclose.png' },
+  
+  { id: 5, label: 'Increasing Volume on 1 or 3 min against my trade', group: 'nogo', state: 'neutral', image: '/imbalance.png' },
+  { id: 6, label: '1min close on wrong side (Either NQ or SPX)', group: 'nogo', state: 'neutral', image: '/2ndpoke.png' },
+  { id: 7, label: 'TP1 < 1.5 R/R of room', group: 'nogo', state: 'neutral', image: '/tp1room.png' },
+  { id: 8, label: 'Trade still fighting Major Level', group: 'nogo', state: 'neutral', image: '/2b.png' },
   { id: 9, label: 'SPX and NQ Not on same side of OPEN', group: 'nogo', state: 'neutral', image: '/NGsameside.png' },
   { id: 10, label: 'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)', group: 'nogo', state: 'neutral', image: '/NGStructure.png' },
   { id: 11, label: 'Choppy/Overlapping PA', group: 'nogo', state: 'neutral', image: '/NGchop.png' },
@@ -50,9 +51,17 @@ function getOverallStatus(greenCount, redCount, regime) {
     };
   }
 
+  if (greenCount === 3) {
+    return {
+      title: 'A',
+      subtitle: `${regime} confirmed: 3/4 entry conditions are on.`,
+      className: 'status-card status-emerald',
+    };
+  }
+
   return {
     title: 'DO NOT ENTER',
-    subtitle: 'You need 4/4 green and 0 active no-go conditions.',
+    subtitle: 'You need at least 3/4 green and 0 active no-go conditions.',
     className: 'status-card status-neutral',
   };
 }
@@ -110,7 +119,7 @@ export default function App() {
         <header className="topbar">
           <div>
             <h1>Trade Conviction Board</h1>
-            <p>Top row starts grey and turns green when confirmed. Bottom 2 rows are no-go. Any red means no trade.</p>
+            <p>Bottom 2 rows are no-go. Any red means no trade.</p>
           </div>
           <div className="topbar-right">
             <div className="pill-card pill-card-wide">
