@@ -1,5 +1,17 @@
 import React, { useMemo, useState } from 'react';
 
+function TileImage({ src }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) return null;
+
+  return (
+    <div className="tile-image-wrap" aria-hidden="true">
+      <img src={src} alt="" className="tile-image" onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
 const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP'];
 
 const defaultTiles = [
@@ -40,7 +52,7 @@ function getOverallStatus(greenCount, redCount, regime) {
 
   return {
     title: 'DO NOT ENTER',
-    subtitle: `You need 4/4 green and 0 active no-go conditions.`,
+    subtitle: 'You need 4/4 green and 0 active no-go conditions.',
     className: 'status-card status-neutral',
   };
 }
@@ -98,9 +110,13 @@ export default function App() {
         <header className="topbar">
           <div>
             <h1>Trade Conviction Board</h1>
-            <p>Top row is green. Bottom 2 rows are no-go. Any red means no trade.</p>
+            <p>Top row starts grey and turns green when confirmed. Bottom 2 rows are no-go. Any red means no trade.</p>
           </div>
           <div className="topbar-right">
+            <div className="pill-card pill-card-wide">
+              <span className="pill-label">TP Plan</span>
+              <strong>{tpPlan}</strong>
+            </div>
             <button type="button" className={getRegimeCardClass(regime)} onClick={cycleRegime}>
               <span className="pill-label">Regime</span>
               <strong>{regime}</strong>
@@ -108,10 +124,6 @@ export default function App() {
             <div className="pill-card pill-card-wide">
               <span className="pill-label">Green Conditions</span>
               <strong>{greenCount}/4</strong>
-            </div>
-            <div className="pill-card pill-card-wide">
-              <span className="pill-label">TP Plan</span>
-              <strong>{tpPlan}</strong>
             </div>
             <button className="reset-button" onClick={resetTiles}>
               Reset
@@ -139,11 +151,7 @@ export default function App() {
                 className={`tile-card ${cardClass}`}
                 onClick={() => toggleTile(tile.id)}
               >
-                {hasImage && (
-                  <div className="tile-image-wrap" aria-hidden="true">
-                    <img src={tile.image} alt="" className="tile-image" />
-                  </div>
-                )}
+                {hasImage && <TileImage src={tile.image} />}
 
                 <div className={`tile-content ${hasImage ? 'tile-content-with-image' : ''}`}>
                   <div>
