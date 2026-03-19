@@ -1,6 +1,3 @@
-Yep — here’s the full `App.jsx` with that change already made:
-
-```jsx
 import React, { useMemo, useState } from 'react';
 
 function TileImage({ src }) {
@@ -129,14 +126,17 @@ export default function App() {
               <span className="pill-label">TP Plan</span>
               <strong>{tpPlan}</strong>
             </div>
+
             <button type="button" className={getRegimeCardClass(regime)} onClick={cycleRegime}>
               <span className="pill-label">Regime</span>
               <strong>{regime}</strong>
             </button>
+
             <div className="pill-card pill-card-wide">
               <span className="pill-label">Green Conditions</span>
               <strong>{greenCount}/4</strong>
             </div>
+
             <button className="reset-button" onClick={resetTiles}>
               Reset
             </button>
@@ -170,6 +170,7 @@ export default function App() {
                     <div className="tile-tag">{isEntry ? 'Entry Condition' : 'No Go'}</div>
                     <div className="tile-label">{tile.label}</div>
                   </div>
+
                   <div className="tile-state">
                     {isEntry
                       ? tile.state === 'active'
@@ -188,6 +189,3 @@ export default function App() {
     </div>
   );
 }
-```
-
-Paste that over your current `src/App.jsx` and commit it.
