@@ -81,10 +81,11 @@ button {
 .pill-card strong {
   font-size: 1.1rem;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .pill-card-wide {
-  min-width: 124px;
+  min-width: 185px;
 }
 
 .pill-button {
@@ -116,13 +117,7 @@ button {
 .regime-trend,
 .regime-reversal,
 .regime-chop {
-  min-width: 240px;
-}
-
-.regime-trend strong,
-.regime-reversal strong,
-.regime-chop strong {
-  white-space: nowrap;
+  min-width: 255px;
 }
 
 .pill-label,
@@ -308,6 +303,16 @@ button {
     font-size: 0.98rem;
   }
 
+  .pill-card-wide {
+    min-width: 165px;
+  }
+
+  .regime-trend,
+  .regime-reversal,
+  .regime-chop {
+    min-width: 225px;
+  }
+
   .status-card {
     padding: 12px 14px;
     margin-bottom: 10px;
@@ -366,6 +371,16 @@ button {
   .topbar-right {
     justify-content: flex-start;
   }
+
+  .pill-card-wide {
+    min-width: 160px;
+  }
+
+  .regime-trend,
+  .regime-reversal,
+  .regime-chop {
+    min-width: 210px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -409,5 +424,12 @@ button {
 
   .tile-label {
     font-size: 1rem;
+  }
+
+  .pill-card-wide,
+  .regime-trend,
+  .regime-reversal,
+  .regime-chop {
+    min-width: 100%;
   }
 }
