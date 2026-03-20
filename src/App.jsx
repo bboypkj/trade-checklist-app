@@ -17,7 +17,7 @@ function TileImage({ src }) {
   );
 }
 
-const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP'];
+const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP', 'Neutral'];
 
 const defaultTiles = [
   {
@@ -113,6 +113,7 @@ function getNextState(tile) {
 }
 
 function getTpPlan(regime) {
+  if (regime === 'Neutral') return "Don't Trade";
   return regime === '2-Sided CHOP' ? 'Conservative' : 'Ride the Trend';
 }
 
@@ -122,6 +123,22 @@ function getOverallStatus(greenCount, redCount, regime, tpPlan) {
       title: 'NO GO',
       subtitle: 'At least one no-go condition is active.',
       className: 'status-card status-red',
+    };
+  }
+
+  if (regime === 'Neutral') {
+    return {
+      title: 'DO NOT ENTER',
+      subtitle: (
+        <>
+          Regime: {regime}
+          <br />
+          TP Plan: {tpPlan}
+          <br />
+          No trade in neutral conditions.
+        </>
+      ),
+      className: 'status-card status-yellow',
     };
   }
 
@@ -167,6 +184,7 @@ function getOverallStatus(greenCount, redCount, regime, tpPlan) {
 function getRegimeCardClass(regime) {
   if (regime === 'Trend Day') return 'pill-card pill-button regime-trend';
   if (regime === 'Reversal Day') return 'pill-card pill-button regime-reversal';
+  if (regime === 'Neutral') return 'pill-card pill-button regime-neutral';
   return 'pill-card pill-button regime-chop';
 }
 
@@ -225,7 +243,7 @@ export default function App() {
           </div>
 
           <div className="topbar-right">
-            <div className="pill-card pill-card-wide">
+            <div className="pill-card pill-card-wide pill-static">
               <span className="pill-label">TP Plan</span>
               <strong>{tpPlan}</strong>
             </div>
@@ -239,7 +257,7 @@ export default function App() {
               <strong>{regime}</strong>
             </button>
 
-            <div className="pill-card pill-card-wide">
+            <div className="pill-card pill-card-wide pill-static">
               <span className="pill-label">Green Conditions</span>
               <strong>{greenCount}/4</strong>
             </div>

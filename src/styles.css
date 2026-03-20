@@ -88,35 +88,54 @@ button {
   min-width: 185px;
 }
 
+.pill-static {
+  background: #1b1f2b;
+}
+
 .pill-button {
   color: #f5f7fb;
   cursor: pointer;
   text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pill-button:hover,
 .reset-button:hover {
-  background: #252a38;
+  filter: brightness(1.06);
+}
+
+.pill-button:focus,
+.pill-button:focus-visible,
+.pill-button:active {
+  outline: none;
 }
 
 .regime-trend {
-  border-color: rgba(34, 197, 94, 0.55);
-  background: rgba(5, 87, 52, 0.32);
+  border-color: rgba(34, 197, 94, 0.75);
+  background-color: rgba(5, 87, 52, 0.72);
 }
 
 .regime-reversal {
-  border-color: rgba(59, 130, 246, 0.55);
-  background: rgba(30, 64, 175, 0.28);
+  border-color: rgba(59, 130, 246, 0.75);
+  background-color: rgba(30, 64, 175, 0.64);
 }
 
 .regime-chop {
-  border-color: rgba(245, 158, 11, 0.55);
-  background: rgba(146, 64, 14, 0.3);
+  border-color: rgba(239, 68, 68, 0.78);
+  background-color: rgba(127, 29, 29, 0.72);
+}
+
+.regime-neutral {
+  border-color: rgba(245, 158, 11, 0.82);
+  background-color: rgba(161, 98, 7, 0.74);
 }
 
 .regime-trend,
 .regime-reversal,
-.regime-chop {
+.regime-chop,
+.regime-neutral {
   min-width: 255px;
 }
 
@@ -169,6 +188,12 @@ button {
   background: rgba(127, 29, 29, 0.45);
   border-color: rgba(239, 68, 68, 0.65);
   color: #ffe1e1;
+}
+
+.status-yellow {
+  background: rgba(161, 98, 7, 0.34);
+  border-color: rgba(245, 158, 11, 0.72);
+  color: #fff2cf;
 }
 
 .tiles-grid {
@@ -309,7 +334,8 @@ button {
 
   .regime-trend,
   .regime-reversal,
-  .regime-chop {
+  .regime-chop,
+  .regime-neutral {
     min-width: 225px;
   }
 
@@ -378,7 +404,8 @@ button {
 
   .regime-trend,
   .regime-reversal,
-  .regime-chop {
+  .regime-chop,
+  .regime-neutral {
     min-width: 210px;
   }
 }
@@ -429,7 +456,8 @@ button {
   .pill-card-wide,
   .regime-trend,
   .regime-reversal,
-  .regime-chop {
+  .regime-chop,
+  .regime-neutral {
     min-width: 100%;
   }
 }
