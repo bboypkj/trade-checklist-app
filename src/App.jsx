@@ -72,7 +72,7 @@ const defaultTiles = [
   },
   {
     id: 8,
-    label: 'Trade still fighting Major Level',
+    label: 'Trade still fighting Major Level / 2B + Div against me',
     group: 'nogo',
     state: 'neutral',
     image: '/2b.png',
@@ -94,14 +94,14 @@ const defaultTiles = [
   },
   {
     id: 11,
-    label: 'Choppy/Overlapping PA',
+    label: 'Trend NOT Pretty (Choppy/Range/Overlapping)',
     group: 'nogo',
     state: 'neutral',
     image: '/NGchop.png',
   },
   {
     id: 12,
-    label: 'Fading Direction of a 2B + Div at Major AOI',
+    label: 'Fading LTF break-out from cluster',
     group: 'nogo',
     state: 'neutral',
     image: '/NGfade.png',
