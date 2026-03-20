@@ -272,6 +272,7 @@ export default function App() {
   const swipeStartRef = useRef(null);
   const panStartRef = useRef(null);
   const pinchStartRef = useRef(null);
+  const mousePanRef = useRef(null);
 
   const regime = regimeOptions[regimeIndex];
   const tpPlan = getTpPlan(regime);
@@ -323,6 +324,7 @@ export default function App() {
     swipeStartRef.current = null;
     panStartRef.current = null;
     pinchStartRef.current = null;
+    mousePanRef.current = null;
     setIsDraggingZoomedImage(false);
     setGalleryScale(1);
     setGalleryOffset({ x: 0, y: 0 });
@@ -351,6 +353,32 @@ export default function App() {
       resetGalleryZoom();
     }
   }, [isGalleryOpen, galleryIndex, galleryKind]);
+
+  useEffect(() => {
+    if (!isDraggingZoomedImage || !mousePanRef.current) return;
+
+    const handleMouseMove = (event) => {
+      const deltaX = event.clientX - mousePanRef.current.x;
+      const deltaY = event.clientY - mousePanRef.current.y;
+
+      setZoom(galleryScale, {
+        x: mousePanRef.current.offsetX + deltaX,
+        y: mousePanRef.current.offsetY + deltaY,
+      });
+    };
+
+    const handleMouseUp = () => {
+      stopGalleryMouseDrag();
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingZoomedImage, galleryScale]);
 
   const toggleTile = (id) => {
     setTiles((prev) =>
@@ -504,6 +532,38 @@ export default function App() {
       }
     }
   };
+  const onGalleryMouseDown = (event) => {
+    if (!currentGalleryItem || !isZoomed || event.button != 0) return;
+
+    event.preventDefault();
+    mousePanRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      offsetX: galleryOffset.x,
+      offsetY: galleryOffset.y,
+    };
+    setIsDraggingZoomedImage(true);
+  };
+
+  const onGalleryMouseMove = (event) => {
+    if (!isDraggingZoomedImage || !mousePanRef.current) return;
+
+    event.preventDefault();
+    const deltaX = event.clientX - mousePanRef.current.x;
+    const deltaY = event.clientY - mousePanRef.current.y;
+
+    setZoom(galleryScale, {
+      x: mousePanRef.current.offsetX + deltaX,
+      y: mousePanRef.current.offsetY + deltaY,
+    });
+  };
+
+  const stopGalleryMouseDrag = () => {
+    mousePanRef.current = null;
+    setIsDraggingZoomedImage(false);
+  };
+
+
 
   return (
     <div className="app-shell">
@@ -650,6 +710,10 @@ export default function App() {
               onTouchMove={onGalleryTouchMove}
               onTouchEnd={onGalleryTouchEnd}
               onDoubleClick={onGalleryDoubleClick}
+              onMouseDown={onGalleryMouseDown}
+              onMouseMove={onGalleryMouseMove}
+              onMouseUp={stopGalleryMouseDrag}
+              onMouseLeave={stopGalleryMouseDrag}
             >
               {currentGalleryItem ? (
                 <div className="gallery-image-shell">
@@ -661,6 +725,8 @@ export default function App() {
                       transform: `translate(${galleryOffset.x}px, ${galleryOffset.y}px) scale(${galleryScale})`,
                       transition: isDraggingZoomedImage ? 'none' : 'transform 0.16s ease',
                     }}
+                    draggable={false}
+                    onDragStart={(event) => event.preventDefault()}
                   />
                 </div>
               ) : (
