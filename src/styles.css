@@ -38,21 +38,38 @@ button {
 .topbar {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 18px;
   align-items: flex-start;
   margin-bottom: 12px;
 }
 
+.topbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 280px;
+}
+
+.topbar-title-block h1,
 .topbar h1 {
   margin: 0;
   font-size: 1.7rem;
   line-height: 1.05;
 }
 
+.topbar-title-block p,
 .topbar p {
   margin: 4px 0 0;
   color: #b6becc;
   font-size: 0.92rem;
+}
+
+.review-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .topbar-right {
@@ -60,6 +77,8 @@ button {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: stretch;
+  flex: 0 0 auto;
 }
 
 .pill-card,
@@ -132,7 +151,7 @@ button {
 }
 
 .gallery-button {
-  min-width: 170px;
+  min-width: 180px;
 }
 
 .gallery-button-aplus {
@@ -467,6 +486,10 @@ button {
 
   .topbar {
     margin-bottom: 10px;
+    gap: 12px;
+  }
+
+  .topbar-left {
     gap: 10px;
   }
 
@@ -476,6 +499,10 @@ button {
 
   .topbar p {
     font-size: 0.82rem;
+  }
+
+  .review-strip {
+    gap: 8px;
   }
 
   .pill-card,

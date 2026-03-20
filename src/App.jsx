@@ -350,22 +350,34 @@ export default function App() {
     <div className="app-shell">
       <div className="app-container">
         <header className="topbar">
-          <div>
-            <h1>Trade Conviction Board</h1>
-            <p>Bottom 2 rows are no-go. Any red means no trade.</p>
+          <div className="topbar-left">
+            <div className="topbar-title-block">
+              <h1>Trade Conviction Board</h1>
+              <p>Bottom 2 rows are no-go. Any red means no trade.</p>
+            </div>
+
+            <div className="review-strip">
+              <button
+                type="button"
+                className="pill-card gallery-button gallery-button-aplus"
+                onClick={() => openGallery('APLUS')}
+              >
+                <span className="pill-label">Review</span>
+                <strong>A+ Gallery</strong>
+              </button>
+
+              <button
+                type="button"
+                className="pill-card gallery-button gallery-button-ng"
+                onClick={() => openGallery('NG')}
+              >
+                <span className="pill-label">Review</span>
+                <strong>NO GO Gallery</strong>
+              </button>
+            </div>
           </div>
 
           <div className="topbar-right">
-            <button type="button" className="pill-card gallery-button gallery-button-aplus" onClick={() => openGallery('APLUS')}>
-              <span className="pill-label">Review</span>
-              <strong>A+ Gallery</strong>
-            </button>
-
-            <button type="button" className="pill-card gallery-button gallery-button-ng" onClick={() => openGallery('NG')}>
-              <span className="pill-label">Review</span>
-              <strong>NO GO Gallery</strong>
-            </button>
-
             <div className="pill-card pill-card-wide pill-static">
               <span className="pill-label">TP Plan</span>
               <strong>{tpPlan}</strong>
