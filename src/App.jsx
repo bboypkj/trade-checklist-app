@@ -87,7 +87,7 @@ const defaultTiles = [
   {
     id: 10,
     label:
-      'PA Structuring Against Trade (HHs on Short, LLs on Long, Shorting or Longing into CLUSTER)',
+      'PA Structuring Against Trade (HHs on Short, LLs on Long)',
     group: 'nogo',
     state: 'neutral',
     image: '/NGStructure.png',
