@@ -36,7 +36,7 @@ const defaultTiles = [
   },
   {
     id: 3,
-    label: 'Pretty Trend (Clear Direction)',
+    label: 'Pretty Trend (Clear Direction, steep VWAP)',
     group: 'entry',
     state: 'neutral',
     image: '/analogous.png',
@@ -94,7 +94,7 @@ const defaultTiles = [
   },
   {
     id: 11,
-    label: 'Trend NOT Pretty (Choppy/Range/Overlapping)',
+    label: 'Trend NOT Pretty (Choppy/Range/Overlapping/Flat VWAP)',
     group: 'nogo',
     state: 'neutral',
     image: '/NGchop.png',
