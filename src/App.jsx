@@ -36,7 +36,7 @@ const defaultTiles = [
   },
   {
     id: 3,
-    label: 'Pretty Trend',
+    label: 'Pretty Trend (Clear Direction)',
     group: 'entry',
     state: 'neutral',
     image: '/analogous.png',
