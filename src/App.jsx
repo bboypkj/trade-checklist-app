@@ -1,22 +1,38 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-function TileImage({ src }) {
-  const [failed, setFailed] = useState(false);
-
-  if (!src || failed) return null;
-
-  return (
-    <div className="tile-image-wrap" aria-hidden="true">
-      <img
-        src={src}
-        alt=""
-        className="tile-image"
-        onError={() => setFailed(true)}
-      />
-    </div>
-  );
+function loadGalleryItems(globMap) {
+  return Object.entries(globMap)
+    .map(([path, src]) => {
+      const fileName = path.split('/').pop() || '';
+      const label = fileName.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+      return { src, fileName, label };
+    })
+    .sort((a, b) => a.fileName.localeCompare(b.fileName, undefined, { numeric: true }));
 }
 
+const aplusGalleryItems = loadGalleryItems({
+  ...import.meta.glob('./gallery/APLUS/*.png', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.jpg', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.jpeg', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.webp', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.PNG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.JPG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.JPEG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/APLUS/*.WEBP', { eager: true, import: 'default' }),
+});
+
+const noGoGalleryItems = loadGalleryItems({
+  ...import.meta.glob('./gallery/NG/*.png', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.jpg', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.jpeg', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.webp', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.PNG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.JPG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.JPEG', { eager: true, import: 'default' }),
+  ...import.meta.glob('./gallery/NG/*.WEBP', { eager: true, import: 'default' }),
+});
+
+const STORAGE_KEY = 'trade-checklist-board-state-v3';
 const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP', 'Neutral'];
 
 const defaultTiles = [
@@ -48,7 +64,6 @@ const defaultTiles = [
     state: 'neutral',
     image: '/samesideclose.png',
   },
-
   {
     id: 5,
     label: 'Increasing Volume on 1 or 3 min against my trade',
@@ -86,8 +101,7 @@ const defaultTiles = [
   },
   {
     id: 10,
-    label:
-      'PA Structuring Against Trade (HHs on Short, LLs on Long)',
+    label: 'PA Structuring Against Trade (HHs on Short, LLs on Long)',
     group: 'nogo',
     state: 'neutral',
     image: '/NGStructure.png',
@@ -107,6 +121,50 @@ const defaultTiles = [
     image: '/NGfade.png',
   },
 ];
+
+function TileImage({ src }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) return null;
+
+  return (
+    <div className="tile-image-wrap" aria-hidden="true">
+      <img
+        src={src}
+        alt=""
+        className="tile-image"
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+}
+
+function getSavedState() {
+  if (typeof window === 'undefined') {
+    return { tiles: defaultTiles, regimeIndex: 0 };
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { tiles: defaultTiles, regimeIndex: 0 };
+    }
+
+    const parsed = JSON.parse(raw);
+    const savedStates = new Map((parsed.tiles || []).map((tile) => [tile.id, tile.state]));
+    const tiles = defaultTiles.map((tile) => ({
+      ...tile,
+      state: savedStates.get(tile.id) === 'active' ? 'active' : 'neutral',
+    }));
+    const regimeIndex = Number.isInteger(parsed.regimeIndex)
+      ? Math.min(Math.max(parsed.regimeIndex, 0), regimeOptions.length - 1)
+      : 0;
+
+    return { tiles, regimeIndex };
+  } catch (error) {
+    return { tiles: defaultTiles, regimeIndex: 0 };
+  }
+}
 
 function getNextState(tile) {
   return tile.state === 'neutral' ? 'active' : 'neutral';
@@ -189,25 +247,24 @@ function getRegimeCardClass(regime) {
 }
 
 export default function App() {
-  const [tiles, setTiles] = useState(defaultTiles);
-  const [regimeIndex, setRegimeIndex] = useState(0);
+  const initialState = useMemo(() => getSavedState(), []);
+  const [tiles, setTiles] = useState(initialState.tiles);
+  const [regimeIndex, setRegimeIndex] = useState(initialState.regimeIndex);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryKind, setGalleryKind] = useState('APLUS');
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const touchStartX = useRef(null);
 
   const regime = regimeOptions[regimeIndex];
   const tpPlan = getTpPlan(regime);
 
   const greenCount = useMemo(
-    () =>
-      tiles.filter(
-        (tile) => tile.group === 'entry' && tile.state === 'active'
-      ).length,
+    () => tiles.filter((tile) => tile.group === 'entry' && tile.state === 'active').length,
     [tiles]
   );
 
   const redCount = useMemo(
-    () =>
-      tiles.filter(
-        (tile) => tile.group === 'nogo' && tile.state === 'active'
-      ).length,
+    () => tiles.filter((tile) => tile.group === 'nogo' && tile.state === 'active').length,
     [tiles]
   );
 
@@ -216,11 +273,30 @@ export default function App() {
     [greenCount, redCount, regime, tpPlan]
   );
 
+  const galleryItems = galleryKind === 'APLUS' ? aplusGalleryItems : noGoGalleryItems;
+  const currentGalleryItem = galleryItems[galleryIndex] || null;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        regimeIndex,
+        tiles: tiles.map((tile) => ({ id: tile.id, state: tile.state })),
+      })
+    );
+  }, [tiles, regimeIndex]);
+
+  useEffect(() => {
+    if (galleryIndex > 0 && galleryIndex > galleryItems.length - 1) {
+      setGalleryIndex(0);
+    }
+  }, [galleryIndex, galleryItems.length]);
+
   const toggleTile = (id) => {
     setTiles((prev) =>
-      prev.map((tile) =>
-        tile.id === id ? { ...tile, state: getNextState(tile) } : tile
-      )
+      prev.map((tile) => (tile.id === id ? { ...tile, state: getNextState(tile) } : tile))
     );
   };
 
@@ -229,8 +305,45 @@ export default function App() {
   };
 
   const resetTiles = () => {
-    setTiles(defaultTiles);
-    setRegimeIndex(0);
+    setTiles(defaultTiles.map((tile) => ({ ...tile, state: 'neutral' })));
+  };
+
+  const openGallery = (kind) => {
+    setGalleryKind(kind);
+    setGalleryIndex(0);
+    setIsGalleryOpen(true);
+  };
+
+  const closeGallery = () => {
+    setIsGalleryOpen(false);
+  };
+
+  const showPreviousImage = () => {
+    if (galleryItems.length === 0) return;
+    setGalleryIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+  };
+
+  const showNextImage = () => {
+    if (galleryItems.length === 0) return;
+    setGalleryIndex((prev) => (prev + 1) % galleryItems.length);
+  };
+
+  const onGalleryTouchStart = (event) => {
+    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const onGalleryTouchEnd = (event) => {
+    const endX = event.changedTouches[0]?.clientX ?? null;
+    if (touchStartX.current === null || endX === null) return;
+
+    const deltaX = endX - touchStartX.current;
+    if (Math.abs(deltaX) < 45) return;
+
+    if (deltaX < 0) {
+      showNextImage();
+    } else {
+      showPreviousImage();
+    }
   };
 
   return (
@@ -243,6 +356,16 @@ export default function App() {
           </div>
 
           <div className="topbar-right">
+            <button type="button" className="pill-card gallery-button gallery-button-aplus" onClick={() => openGallery('APLUS')}>
+              <span className="pill-label">Review</span>
+              <strong>A+ Gallery</strong>
+            </button>
+
+            <button type="button" className="pill-card gallery-button gallery-button-ng" onClick={() => openGallery('NG')}>
+              <span className="pill-label">Review</span>
+              <strong>NO GO Gallery</strong>
+            </button>
+
             <div className="pill-card pill-card-wide pill-static">
               <span className="pill-label">TP Plan</span>
               <strong>{tpPlan}</strong>
@@ -263,7 +386,7 @@ export default function App() {
             </div>
 
             <button className="reset-button" onClick={resetTiles}>
-              Reset
+              Reset Tiles
             </button>
           </div>
         </header>
@@ -279,8 +402,7 @@ export default function App() {
             const isEntry = tile.group === 'entry';
             const activeClass = isEntry ? 'entry-active' : 'nogo-active';
             const neutralClass = isEntry ? 'tile-neutral' : 'nogo-neutral';
-            const cardClass =
-              tile.state === 'active' ? activeClass : neutralClass;
+            const cardClass = tile.state === 'active' ? activeClass : neutralClass;
             const hasImage = Boolean(tile.image);
 
             return (
@@ -291,15 +413,9 @@ export default function App() {
               >
                 {hasImage && <TileImage src={tile.image} />}
 
-                <div
-                  className={`tile-content ${
-                    hasImage ? 'tile-content-with-image' : ''
-                  }`}
-                >
+                <div className={`tile-content ${hasImage ? 'tile-content-with-image' : ''}`}>
                   <div>
-                    <div className="tile-tag">
-                      {isEntry ? 'Entry Condition' : 'No Go'}
-                    </div>
+                    <div className="tile-tag">{isEntry ? 'Entry Condition' : 'No Go'}</div>
                     <div className="tile-label">{tile.label}</div>
                   </div>
 
@@ -309,8 +425,8 @@ export default function App() {
                         ? 'Confirmed'
                         : 'Required'
                       : tile.state === 'active'
-                      ? 'Active blocker'
-                      : 'Not present'}
+                        ? 'Active blocker'
+                        : 'Not present'}
                   </div>
                 </div>
               </button>
@@ -318,6 +434,84 @@ export default function App() {
           })}
         </main>
       </div>
+
+      {isGalleryOpen && (
+        <div className="gallery-overlay">
+          <div className="gallery-panel">
+            <div className="gallery-topbar">
+              <div className="gallery-tabs">
+                <button
+                  type="button"
+                  className={`gallery-tab ${galleryKind === 'APLUS' ? 'gallery-tab-active gallery-tab-aplus' : ''}`}
+                  onClick={() => {
+                    setGalleryKind('APLUS');
+                    setGalleryIndex(0);
+                  }}
+                >
+                  A+ Gallery
+                </button>
+                <button
+                  type="button"
+                  className={`gallery-tab ${galleryKind === 'NG' ? 'gallery-tab-active gallery-tab-ng' : ''}`}
+                  onClick={() => {
+                    setGalleryKind('NG');
+                    setGalleryIndex(0);
+                  }}
+                >
+                  NO GO Gallery
+                </button>
+              </div>
+
+              <div className="gallery-topbar-right">
+                <div className="gallery-count">
+                  {galleryItems.length > 0 ? `${galleryIndex + 1} / ${galleryItems.length}` : '0 / 0'}
+                </div>
+                <button type="button" className="gallery-close" onClick={closeGallery}>
+                  Back to Board
+                </button>
+              </div>
+            </div>
+
+            <div
+              className="gallery-stage"
+              onTouchStart={onGalleryTouchStart}
+              onTouchEnd={onGalleryTouchEnd}
+            >
+              {currentGalleryItem ? (
+                <img
+                  src={currentGalleryItem.src}
+                  alt={currentGalleryItem.label}
+                  className="gallery-image"
+                />
+              ) : (
+                <div className="gallery-empty">
+                  <h3>No screenshots yet</h3>
+                  <p>
+                    Add .png, .jpg, .jpeg, or .webp files to
+                    <br />
+                    <strong>{galleryKind === 'APLUS' ? 'src/gallery/APLUS' : 'src/gallery/NG'}</strong>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="gallery-footer">
+              <div className="gallery-caption">
+                {currentGalleryItem ? currentGalleryItem.label : 'Swipe left/right or use the buttons below.'}
+              </div>
+
+              <div className="gallery-controls">
+                <button type="button" className="gallery-nav" onClick={showPreviousImage} disabled={galleryItems.length === 0}>
+                  Previous
+                </button>
+                <button type="button" className="gallery-nav" onClick={showNextImage} disabled={galleryItems.length === 0}>
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
