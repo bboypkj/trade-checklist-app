@@ -34,6 +34,9 @@ const noGoGalleryItems = loadGalleryItems({
 
 const STORAGE_KEY = 'trade-checklist-board-state-v3';
 const regimeOptions = ['Trend Day', 'Reversal Day', '2-Sided CHOP', 'Neutral'];
+const MIN_GALLERY_SCALE = 1;
+const MAX_GALLERY_SCALE = 4;
+const DOUBLE_TAP_SCALE = 2.2;
 
 const defaultTiles = [
   {
@@ -246,6 +249,14 @@ function getRegimeCardClass(regime) {
   return 'pill-card pill-button regime-chop';
 }
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getTouchDistance(touchA, touchB) {
+  return Math.hypot(touchA.clientX - touchB.clientX, touchA.clientY - touchB.clientY);
+}
+
 export default function App() {
   const initialState = useMemo(() => getSavedState(), []);
   const [tiles, setTiles] = useState(initialState.tiles);
@@ -253,7 +264,14 @@ export default function App() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryKind, setGalleryKind] = useState('APLUS');
   const [galleryIndex, setGalleryIndex] = useState(0);
-  const touchStartX = useRef(null);
+  const [galleryScale, setGalleryScale] = useState(1);
+  const [galleryOffset, setGalleryOffset] = useState({ x: 0, y: 0 });
+  const [isDraggingZoomedImage, setIsDraggingZoomedImage] = useState(false);
+  const galleryStageRef = useRef(null);
+  const touchModeRef = useRef(null);
+  const swipeStartRef = useRef(null);
+  const panStartRef = useRef(null);
+  const pinchStartRef = useRef(null);
 
   const regime = regimeOptions[regimeIndex];
   const tpPlan = getTpPlan(regime);
@@ -275,6 +293,40 @@ export default function App() {
 
   const galleryItems = galleryKind === 'APLUS' ? aplusGalleryItems : noGoGalleryItems;
   const currentGalleryItem = galleryItems[galleryIndex] || null;
+  const isZoomed = galleryScale > 1.01;
+
+  const clampOffsetForScale = (nextScale, offset) => {
+    const stage = galleryStageRef.current;
+    if (!stage || nextScale <= 1) {
+      return { x: 0, y: 0 };
+    }
+
+    const rect = stage.getBoundingClientRect();
+    const maxX = (rect.width * (nextScale - 1)) / 2;
+    const maxY = (rect.height * (nextScale - 1)) / 2;
+
+    return {
+      x: clamp(offset.x, -maxX, maxX),
+      y: clamp(offset.y, -maxY, maxY),
+    };
+  };
+
+  const setZoom = (nextScale, nextOffset = galleryOffset) => {
+    const clampedScale = clamp(nextScale, MIN_GALLERY_SCALE, MAX_GALLERY_SCALE);
+    const clampedOffset = clampOffsetForScale(clampedScale, nextOffset);
+    setGalleryScale(clampedScale);
+    setGalleryOffset(clampedOffset);
+  };
+
+  const resetGalleryZoom = () => {
+    touchModeRef.current = null;
+    swipeStartRef.current = null;
+    panStartRef.current = null;
+    pinchStartRef.current = null;
+    setIsDraggingZoomedImage(false);
+    setGalleryScale(1);
+    setGalleryOffset({ x: 0, y: 0 });
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -293,6 +345,12 @@ export default function App() {
       setGalleryIndex(0);
     }
   }, [galleryIndex, galleryItems.length]);
+
+  useEffect(() => {
+    if (isGalleryOpen) {
+      resetGalleryZoom();
+    }
+  }, [isGalleryOpen, galleryIndex, galleryKind]);
 
   const toggleTile = (id) => {
     setTiles((prev) =>
@@ -320,29 +378,130 @@ export default function App() {
 
   const showPreviousImage = () => {
     if (galleryItems.length === 0) return;
+    resetGalleryZoom();
     setGalleryIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
   };
 
   const showNextImage = () => {
     if (galleryItems.length === 0) return;
+    resetGalleryZoom();
     setGalleryIndex((prev) => (prev + 1) % galleryItems.length);
   };
 
+  const zoomIn = () => {
+    setZoom(galleryScale + 0.4, galleryOffset);
+  };
+
+  const zoomOut = () => {
+    const nextScale = clamp(galleryScale - 0.4, MIN_GALLERY_SCALE, MAX_GALLERY_SCALE);
+    if (nextScale <= 1.01) {
+      resetGalleryZoom();
+      return;
+    }
+    setZoom(nextScale, galleryOffset);
+  };
+
+  const onGalleryDoubleClick = (event) => {
+    event.preventDefault();
+    if (!currentGalleryItem) return;
+
+    if (isZoomed) {
+      resetGalleryZoom();
+    } else {
+      setZoom(DOUBLE_TAP_SCALE, { x: 0, y: 0 });
+    }
+  };
+
   const onGalleryTouchStart = (event) => {
-    touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+    if (!currentGalleryItem) return;
+
+    if (event.touches.length === 2) {
+      touchModeRef.current = 'pinch';
+      swipeStartRef.current = null;
+      panStartRef.current = null;
+      const [firstTouch, secondTouch] = event.touches;
+      pinchStartRef.current = {
+        distance: getTouchDistance(firstTouch, secondTouch),
+        scale: galleryScale,
+      };
+      return;
+    }
+
+    if (event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+
+    if (isZoomed) {
+      touchModeRef.current = 'pan';
+      panStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        offsetX: galleryOffset.x,
+        offsetY: galleryOffset.y,
+      };
+      setIsDraggingZoomedImage(true);
+      return;
+    }
+
+    touchModeRef.current = 'swipe';
+    swipeStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  };
+
+  const onGalleryTouchMove = (event) => {
+    if (!currentGalleryItem) return;
+
+    if (touchModeRef.current === 'pinch' && event.touches.length === 2) {
+      event.preventDefault();
+      const [firstTouch, secondTouch] = event.touches;
+      const nextDistance = getTouchDistance(firstTouch, secondTouch);
+      const pinchStart = pinchStartRef.current;
+      if (!pinchStart?.distance) return;
+      const nextScale = pinchStart.scale * (nextDistance / pinchStart.distance);
+      setZoom(nextScale, galleryOffset);
+      return;
+    }
+
+    if (touchModeRef.current === 'pan' && event.touches.length === 1 && panStartRef.current) {
+      event.preventDefault();
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - panStartRef.current.x;
+      const deltaY = touch.clientY - panStartRef.current.y;
+      setZoom(galleryScale, {
+        x: panStartRef.current.offsetX + deltaX,
+        y: panStartRef.current.offsetY + deltaY,
+      });
+      return;
+    }
   };
 
   const onGalleryTouchEnd = (event) => {
-    const endX = event.changedTouches[0]?.clientX ?? null;
-    if (touchStartX.current === null || endX === null) return;
+    if (touchModeRef.current === 'swipe' && swipeStartRef.current && !isZoomed) {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      const deltaX = touch.clientX - swipeStartRef.current.x;
+      const deltaY = touch.clientY - swipeStartRef.current.y;
 
-    const deltaX = endX - touchStartX.current;
-    if (Math.abs(deltaX) < 45) return;
+      if (Math.abs(deltaX) > 45 && Math.abs(deltaY) < 80) {
+        if (deltaX < 0) {
+          showNextImage();
+        } else {
+          showPreviousImage();
+        }
+      }
+    }
 
-    if (deltaX < 0) {
-      showNextImage();
-    } else {
-      showPreviousImage();
+    if (event.touches.length === 0) {
+      touchModeRef.current = null;
+      swipeStartRef.current = null;
+      panStartRef.current = null;
+      pinchStartRef.current = null;
+      setIsDraggingZoomedImage(false);
+      if (galleryScale <= 1.01) {
+        resetGalleryZoom();
+      }
     }
   };
 
@@ -485,16 +644,25 @@ export default function App() {
             </div>
 
             <div
-              className="gallery-stage"
+              ref={galleryStageRef}
+              className={`gallery-stage ${isZoomed ? 'gallery-stage-zoomed' : ''} ${isDraggingZoomedImage ? 'gallery-stage-dragging' : ''}`}
               onTouchStart={onGalleryTouchStart}
+              onTouchMove={onGalleryTouchMove}
               onTouchEnd={onGalleryTouchEnd}
+              onDoubleClick={onGalleryDoubleClick}
             >
               {currentGalleryItem ? (
-                <img
-                  src={currentGalleryItem.src}
-                  alt={currentGalleryItem.label}
-                  className="gallery-image"
-                />
+                <div className="gallery-image-shell">
+                  <img
+                    src={currentGalleryItem.src}
+                    alt={currentGalleryItem.label}
+                    className="gallery-image"
+                    style={{
+                      transform: `translate(${galleryOffset.x}px, ${galleryOffset.y}px) scale(${galleryScale})`,
+                      transition: isDraggingZoomedImage ? 'none' : 'transform 0.16s ease',
+                    }}
+                  />
+                </div>
               ) : (
                 <div className="gallery-empty">
                   <h3>No screenshots yet</h3>
@@ -509,14 +677,26 @@ export default function App() {
 
             <div className="gallery-footer">
               <div className="gallery-caption">
-                {currentGalleryItem ? currentGalleryItem.label : 'Swipe left/right or use the buttons below.'}
+                {currentGalleryItem ? currentGalleryItem.label : 'Pinch, double-tap, or use the buttons below.'}
               </div>
 
               <div className="gallery-controls">
-                <button type="button" className="gallery-nav" onClick={showPreviousImage} disabled={galleryItems.length === 0}>
+                <div className="gallery-zoom-controls">
+                  <button type="button" className="gallery-nav gallery-zoom-button" onClick={zoomOut} disabled={!currentGalleryItem || galleryScale <= 1.01}>
+                    -
+                  </button>
+                  <button type="button" className="gallery-nav gallery-zoom-button" onClick={resetGalleryZoom} disabled={!currentGalleryItem || galleryScale <= 1.01}>
+                    Reset Zoom
+                  </button>
+                  <button type="button" className="gallery-nav gallery-zoom-button" onClick={zoomIn} disabled={!currentGalleryItem || galleryScale >= MAX_GALLERY_SCALE}>
+                    +
+                  </button>
+                </div>
+
+                <button type="button" className="gallery-nav" onClick={showPreviousImage} disabled={galleryItems.length === 0 || isZoomed}>
                   Previous
                 </button>
-                <button type="button" className="gallery-nav" onClick={showNextImage} disabled={galleryItems.length === 0}>
+                <button type="button" className="gallery-nav" onClick={showNextImage} disabled={galleryItems.length === 0 || isZoomed}>
                   Next
                 </button>
               </div>
