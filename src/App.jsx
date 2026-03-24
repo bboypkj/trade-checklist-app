@@ -111,7 +111,7 @@ const defaultTiles = [
   },
   {
     id: 11,
-    label: 'Trend NOT Pretty (Choppy/Range/Overlapping/Flat VWAP)',
+    label: 'Trend NOT Pretty (Choppy/Range/Overlapping/Flat VWAP/In a Pinch)',
     group: 'nogo',
     state: 'neutral',
     image: '/NGchop.png',
